@@ -1,0 +1,264 @@
+<UserControl x:Class="EsspronAlcoholTester.Views.DeviceConnectionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="900">
+    
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
+    
+    <StackPanel>
+        <!-- Connection Status Card -->
+        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,24">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Icon -->
+                <Border Grid.Column="0" Width="64" Height="64" CornerRadius="16" 
+                        Background="{Binding DataContext.DeviceState, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource DeviceIconBackgroundConverter}, FallbackValue=#F1F5F9}">
+                    <TextBlock Text="🔌" FontSize="28" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                
+                <!-- Status Info -->
+                <StackPanel Grid.Column="1" Margin="20,0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding DataContext.StatusMessage, RelativeSource={RelativeSource AncestorType=UserControl}, FallbackValue=Searching for devices...}" 
+                               FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Connect your Esspron Alcohol Tester via USB" 
+                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                </StackPanel>
+                
+                <!-- Action Button -->
+                <Button Grid.Column="2" Content="🔄 Scan for Devices" 
+                        Command="{Binding DataContext.RefreshDeviceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        Style="{StaticResource SecondaryButtonStyle}" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+        
+        <!-- Device Found Card -->
+        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,24"
+                Visibility="{Binding DataContext.ConnectedDevice, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVis}}">
+            <StackPanel>
+                <Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="48" Height="48" CornerRadius="12" Background="#DCFCE7">
+                            <TextBlock Text="✓" FontSize="24" Foreground="#22C55E"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Device Found!" FontSize="16" FontWeight="SemiBold" Foreground="#22C55E"/>
+                            <TextBlock Text="{Binding DataContext.ConnectedDevice.DeviceName, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                       FontSize="13" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+                
+                <!-- Device Details -->
+                <Border Background="#F8FAFC" CornerRadius="12" Padding="20" Margin="0,20,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Device ID" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding DataContext.ConnectedDevice.DeviceId, RelativeSource={RelativeSource AncestorType=UserControl}, FallbackValue=-}" 
+                                       FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Serial Number" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding DataContext.ConnectedDevice.SerialNumber, RelativeSource={RelativeSource AncestorType=UserControl}, FallbackValue=-}" 
+                                       FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Records on Device" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding DataContext.ConnectedDevice.TotalRecords, RelativeSource={RelativeSource AncestorType=UserControl}, FallbackValue=0}" 
+                                       FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="3">
+                            <TextBlock Text="Firmware Version" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding DataContext.ConnectedDevice.FirmwareVersion, RelativeSource={RelativeSource AncestorType=UserControl}, FallbackValue=-}" 
+                                       FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                
+                <!-- Activation Section (if not activated) -->
+                <Border Background="#FEF3C7" CornerRadius="12" Padding="20" Margin="0,16,0,0"
+                        Visibility="{Binding DataContext.ConnectedDevice.IsActivated, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource InverseBoolToVis}, FallbackValue=Visible}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚠️" FontSize="20" Margin="0,0,8,0"/>
+                            <TextBlock Text="Device Activation Required" FontSize="14" FontWeight="SemiBold" 
+                                       Foreground="#B45309" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="Enter your license key to activate this device and start importing data." 
+                                   FontSize="13" Foreground="#92400E" Margin="0,8,0,16" TextWrapping="Wrap"/>
+                        
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBox Grid.Column="0" Style="{StaticResource ModernTextBoxStyle}" 
+                                     Text="{Binding ActivationKey, UpdateSourceTrigger=PropertyChanged}"
+                                     Height="44" Margin="0,0,12,0"
+                                     Tag="Enter license key (ESSPRON-XXXX-XXXX-XXXX)"/>
+                            <Button Grid.Column="1" Content="Activate Device" 
+                                    Style="{StaticResource PrimaryButtonStyle}" Height="44"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Action Buttons -->
+                <StackPanel Orientation="Horizontal" Margin="0,20,0,0" HorizontalAlignment="Right">
+                    <Button Content="Disconnect" 
+                            Command="{Binding DataContext.DisconnectDeviceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            Style="{StaticResource SecondaryButtonStyle}" Margin="0,0,12,0"/>
+                    <Button Content="Connect to Device" 
+                            Command="{Binding DataContext.ConnectDeviceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            Style="{StaticResource PrimaryButtonStyle}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        
+        <!-- Import Data Card -->
+        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,24">
+            <StackPanel>
+                <TextBlock Text="Import Test Data" FontSize="18" FontWeight="SemiBold" 
+                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                <TextBlock Text="Download test records from your connected device to the cloud" 
+                           FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,20"/>
+                
+                <!-- Progress Bar -->
+                <Border Background="#F1F5F9" CornerRadius="8" Padding="20" Margin="0,0,0,20"
+                        Visibility="{Binding DataContext.ImportProgress, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource ProgressVisibilityConverter}, FallbackValue=Collapsed}">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock Text="Importing records..." FontSize="13" Foreground="{StaticResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding DataContext.ImportProgress, RelativeSource={RelativeSource AncestorType=UserControl}, StringFormat={}{0}%}" 
+                                       HorizontalAlignment="Right" FontSize="13" FontWeight="SemiBold" 
+                                       Foreground="{StaticResource PrimaryBrush}"/>
+                        </Grid>
+                        <Border Margin="0,12,0,0" Height="8" CornerRadius="4" Background="#E2E8F0">
+                            <Border Background="{StaticResource PrimaryBrush}" CornerRadius="4"
+                                    Width="{Binding DataContext.ImportProgress, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource ProgressWidthConverter}}"
+                                    HorizontalAlignment="Left"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Import Steps -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Step 1 -->
+                    <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                        <Border Width="48" Height="48" CornerRadius="24" 
+                                Background="{Binding DataContext.DeviceState, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource StepBackgroundConverter}, ConverterParameter=1, FallbackValue=#E2E8F0}">
+                            <TextBlock Text="1" FontSize="18" FontWeight="Bold" 
+                                       Foreground="{Binding DataContext.DeviceState, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource StepForegroundConverter}, ConverterParameter=1, FallbackValue=#64748B}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Device Found" FontSize="12" FontWeight="SemiBold" 
+                                   Foreground="{StaticResource TextPrimaryBrush}" Margin="0,8,0,4" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Detected" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                    
+                    <!-- Step 2 -->
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                        <Border Width="48" Height="48" CornerRadius="24"
+                                Background="{Binding DataContext.DeviceState, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource StepBackgroundConverter}, ConverterParameter=2, FallbackValue=#E2E8F0}">
+                            <TextBlock Text="2" FontSize="18" FontWeight="Bold"
+                                       Foreground="{Binding DataContext.DeviceState, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource StepForegroundConverter}, ConverterParameter=2, FallbackValue=#64748B}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Connect" FontSize="12" FontWeight="SemiBold" 
+                                   Foreground="{StaticResource TextPrimaryBrush}" Margin="0,8,0,4" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Establish link" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                    
+                    <!-- Step 3 -->
+                    <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                        <Border Width="48" Height="48" CornerRadius="24"
+                                Background="{Binding DataContext.DeviceState, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource StepBackgroundConverter}, ConverterParameter=3, FallbackValue=#E2E8F0}">
+                            <TextBlock Text="3" FontSize="18" FontWeight="Bold"
+                                       Foreground="{Binding DataContext.DeviceState, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource StepForegroundConverter}, ConverterParameter=3, FallbackValue=#64748B}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Import Data" FontSize="12" FontWeight="SemiBold" 
+                                   Foreground="{StaticResource TextPrimaryBrush}" Margin="0,8,0,4" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Download records" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                    
+                    <!-- Step 4 -->
+                    <StackPanel Grid.Column="3" HorizontalAlignment="Center">
+                        <Border Width="48" Height="48" CornerRadius="24"
+                                Background="{Binding DataContext.DeviceState, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource StepBackgroundConverter}, ConverterParameter=4, FallbackValue=#E2E8F0}">
+                            <TextBlock Text="4" FontSize="18" FontWeight="Bold"
+                                       Foreground="{Binding DataContext.DeviceState, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource StepForegroundConverter}, ConverterParameter=4, FallbackValue=#64748B}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="Complete" FontSize="12" FontWeight="SemiBold" 
+                                   Foreground="{StaticResource TextPrimaryBrush}" Margin="0,8,0,4" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Synced to cloud" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+                
+                <!-- Import Button -->
+                <Button Content="📥 Import Data from Device" 
+                        Command="{Binding DataContext.ImportDataCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        Style="{StaticResource SuccessButtonStyle}" 
+                        HorizontalAlignment="Center" Margin="0,30,0,0"
+                        FontSize="15" Padding="32,14"/>
+            </StackPanel>
+        </Border>
+        
+        <!-- Instructions Card -->
+        <Border Style="{StaticResource CardStyle}">
+            <StackPanel>
+                <TextBlock Text="📖 How to Import Data" FontSize="16" FontWeight="SemiBold" 
+                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                
+                <StackPanel Margin="0,8">
+                    <TextBlock Text="1. Connect your Esspron Alcohol Tester to your computer via USB cable" 
+                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+                <StackPanel Margin="0,8">
+                    <TextBlock Text="2. Wait for the device to be detected (you'll see a green checkmark)" 
+                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+                <StackPanel Margin="0,8">
+                    <TextBlock Text="3. If this is a new device, enter your license key to activate it" 
+                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+                <StackPanel Margin="0,8">
+                    <TextBlock Text="4. Click 'Connect to Device' to establish the connection" 
+                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+                <StackPanel Margin="0,8">
+                    <TextBlock Text="5. Click 'Import Data' to download all test records from the device" 
+                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

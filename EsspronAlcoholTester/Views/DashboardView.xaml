@@ -1,0 +1,333 @@
+<UserControl x:Class="EsspronAlcoholTester.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:EsspronAlcoholTester.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="1400">
+    
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Sidebar -->
+        <Border Grid.Column="0" Background="{StaticResource SidebarGradientBrush}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Logo -->
+                <StackPanel Grid.Row="0" Margin="20,30,20,30">
+                    <Image Source="/Assets/esspronicon.png" 
+                           Width="160" 
+                           Height="45"
+                           Stretch="Uniform"
+                           HorizontalAlignment="Left"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <TextBlock Text="Alcohol Tester Manager" FontSize="11" Foreground="#94A3B8" Margin="0,8,0,0"/>
+                </StackPanel>
+                
+                <!-- Navigation -->
+                <StackPanel Grid.Row="1" Margin="8,0">
+                    <TextBlock Text="MAIN MENU" FontSize="11" FontWeight="SemiBold" 
+                               Foreground="#64748B" Margin="16,0,0,12"/>
+                    
+                    <Button Style="{StaticResource SidebarButtonStyle}"
+                            Command="{Binding NavigateToCommand}" CommandParameter="Dashboard">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📊" FontSize="18" Margin="0,0,12,0"/>
+                            <TextBlock Text="Dashboard" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Style="{StaticResource SidebarButtonStyle}"
+                            Command="{Binding NavigateToCommand}" CommandParameter="Device">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔌" FontSize="18" Margin="0,0,12,0"/>
+                            <TextBlock Text="Device Connection" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Style="{StaticResource SidebarButtonStyle}"
+                            Command="{Binding NavigateToCommand}" CommandParameter="Data">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📋" FontSize="18" Margin="0,0,12,0"/>
+                            <TextBlock Text="Test Records" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Style="{StaticResource SidebarButtonStyle}"
+                            Command="{Binding NavigateToCommand}" CommandParameter="License">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔑" FontSize="18" Margin="0,0,12,0"/>
+                            <TextBlock Text="License &amp; Activation" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Border BorderThickness="0,1,0,0" BorderBrush="#334155" Margin="16,20"/>
+                    
+                    <TextBlock Text="QUICK ACTIONS" FontSize="11" FontWeight="SemiBold" 
+                               Foreground="#64748B" Margin="16,0,0,12"/>
+                    
+                    <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding ExportDataCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📤" FontSize="18" Margin="0,0,12,0"/>
+                            <TextBlock Text="Export Data" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Style="{StaticResource SidebarButtonStyle}" Command="{Binding RefreshDeviceCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔄" FontSize="18" Margin="0,0,12,0"/>
+                            <TextBlock Text="Refresh Devices" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                
+                <!-- User Profile & Logout -->
+                <Border Grid.Row="2" Background="#1E293B" Padding="16" Margin="12,0,12,20" CornerRadius="12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="40" Height="40" CornerRadius="20" Background="{StaticResource PrimaryBrush}">
+                                <TextBlock Text="{Binding CurrentUser.FullName, Converter={StaticResource FirstLetterConverter}, FallbackValue=U}" 
+                                           FontSize="16" FontWeight="Bold" Foreground="White"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding CurrentUser.FullName, FallbackValue=User}" 
+                                           FontSize="13" FontWeight="SemiBold" Foreground="White"/>
+                                <TextBlock Text="{Binding CurrentUser.Email, FallbackValue=user@email.com}" 
+                                           FontSize="11" Foreground="#94A3B8"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Button Content="Sign Out" Command="{Binding LogoutCommand}"
+                                Style="{StaticResource SidebarButtonStyle}" Margin="0,12,0,0"
+                                HorizontalContentAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+        
+        <!-- Main Content Area -->
+        <Grid Grid.Column="1" Background="{StaticResource BackgroundBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Top Header -->
+            <Border Grid.Row="0" Background="White" Padding="30,20" 
+                    BorderThickness="0,0,0,1" BorderBrush="{StaticResource BorderBrush}">
+                <Grid>
+                    <StackPanel>
+                        <TextBlock Text="{Binding CurrentView}" FontSize="24" FontWeight="Bold" 
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock Text="{Binding StatusMessage}" FontSize="13" 
+                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                    </StackPanel>
+                    
+                    <!-- Device Status Indicator -->
+                    <Border HorizontalAlignment="Right" VerticalAlignment="Center"
+                            Background="{Binding DeviceState, Converter={StaticResource DeviceStateColorConverter}, FallbackValue=#F1F5F9}"
+                            CornerRadius="20" Padding="16,8">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="10" Height="10" 
+                                     Fill="{Binding DeviceState, Converter={StaticResource DeviceStateDotConverter}, FallbackValue=#94A3B8}"/>
+                            <TextBlock Text="{Binding DeviceState, Converter={StaticResource DeviceStateTextConverter}, FallbackValue=No Device}" 
+                                       Margin="8,0,0,0" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+            
+            <!-- Content Views -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <Grid Margin="30">
+                    <!-- Dashboard Content -->
+                    <StackPanel Visibility="{Binding CurrentView, Converter={StaticResource ViewVisibilityConverter}, ConverterParameter=Dashboard}">
+                        
+                        <!-- Stats Cards -->
+                        <Grid Margin="0,0,0,30">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Total Tests -->
+                            <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0,0,15,0">
+                                <StackPanel>
+                                    <TextBlock Text="Total Tests" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding TotalTests}" FontSize="36" FontWeight="Bold" 
+                                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,8,0,0"/>
+                                    <TextBlock Text="All time records" FontSize="12" 
+                                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- Passed -->
+                            <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="8,0">
+                                <StackPanel>
+                                    <TextBlock Text="Passed" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding PassedTests}" FontSize="36" FontWeight="Bold" 
+                                               Foreground="#22C55E" Margin="0,8,0,0"/>
+                                    <Border Background="#DCFCE7" CornerRadius="4" Padding="8,4" 
+                                            HorizontalAlignment="Left" Margin="0,8,0,0">
+                                        <TextBlock Text="&lt; 20 mg/100ml" FontSize="11" Foreground="#15803D"/>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- Warning -->
+                            <Border Grid.Column="2" Style="{StaticResource CardStyle}" Margin="8,0">
+                                <StackPanel>
+                                    <TextBlock Text="Warning" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding WarningTests}" FontSize="36" FontWeight="Bold" 
+                                               Foreground="#F59E0B" Margin="0,8,0,0"/>
+                                    <Border Background="#FEF3C7" CornerRadius="4" Padding="8,4" 
+                                            HorizontalAlignment="Left" Margin="0,8,0,0">
+                                        <TextBlock Text="20-49 mg/100ml" FontSize="11" Foreground="#B45309"/>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- Failed -->
+                            <Border Grid.Column="3" Style="{StaticResource CardStyle}" Margin="15,0,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="Failed" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding FailedTests}" FontSize="36" FontWeight="Bold" 
+                                               Foreground="#EF4444" Margin="0,8,0,0"/>
+                                    <Border Background="#FEE2E2" CornerRadius="4" Padding="8,4" 
+                                            HorizontalAlignment="Left" Margin="0,8,0,0">
+                                        <TextBlock Text="≥ 50 mg/100ml" FontSize="11" Foreground="#DC2626"/>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                        
+                        <!-- Device Connection Card -->
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,30">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Device Connection" FontSize="18" FontWeight="SemiBold" 
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="{Binding ConnectedDevice.DeviceName, FallbackValue=No device detected}" 
+                                               FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0"/>
+                                    
+                                    <StackPanel Orientation="Horizontal" Margin="0,16,0,0" 
+                                                Visibility="{Binding ConnectedDevice, Converter={StaticResource BoolToVis}}">
+                                        <StackPanel Margin="0,0,30,0">
+                                            <TextBlock Text="Serial Number" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                            <TextBlock Text="{Binding ConnectedDevice.SerialNumber, FallbackValue=-}" 
+                                                       FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,30,0">
+                                            <TextBlock Text="Records on Device" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                            <TextBlock Text="{Binding ConnectedDevice.TotalRecords, FallbackValue=0}" 
+                                                       FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                        </StackPanel>
+                                        <StackPanel>
+                                            <TextBlock Text="Firmware" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                            <TextBlock Text="{Binding ConnectedDevice.FirmwareVersion, FallbackValue=-}" 
+                                                       FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button Content="Connect" Command="{Binding ConnectDeviceCommand}"
+                                            Style="{StaticResource PrimaryButtonStyle}"
+                                            IsEnabled="{Binding ConnectedDevice, Converter={StaticResource BoolToVis}}"
+                                            Margin="0,0,12,0"/>
+                                    <Button Content="Import Data" Command="{Binding ImportDataCommand}"
+                                            Style="{StaticResource SuccessButtonStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        
+                        <!-- Import Progress -->
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,30"
+                                Visibility="{Binding ImportProgress, Converter={StaticResource ProgressVisibilityConverter}}">
+                            <StackPanel>
+                                <TextBlock Text="Importing Data..." FontSize="16" FontWeight="SemiBold" 
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <Grid Margin="0,16,0,0">
+                                    <ProgressBar Value="{Binding ImportProgress}" Maximum="100" Height="8"
+                                                 Background="#E2E8F0" Foreground="{StaticResource PrimaryBrush}"/>
+                                </Grid>
+                                <TextBlock Text="{Binding ImportProgress, StringFormat={}{0}% Complete}" 
+                                           FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" 
+                                           Margin="0,8,0,0" HorizontalAlignment="Right"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Recent Records -->
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,16">
+                                    <TextBlock Text="Recent Test Records" FontSize="18" FontWeight="SemiBold" 
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <Button Content="View All" Command="{Binding NavigateToCommand}" CommandParameter="Data"
+                                            HorizontalAlignment="Right" Background="Transparent" BorderThickness="0"
+                                            Foreground="{StaticResource PrimaryBrush}" Cursor="Hand" FontWeight="SemiBold"/>
+                                </Grid>
+                                
+                                <DataGrid ItemsSource="{Binding RecentRecords}" 
+                                          Style="{StaticResource ModernDataGridStyle}"
+                                          ColumnHeaderStyle="{StaticResource ModernDataGridColumnHeaderStyle}"
+                                          CellStyle="{StaticResource ModernDataGridCellStyle}"
+                                          MaxHeight="350">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Test Time" Binding="{Binding TestTime, StringFormat={}{0:MMM dd, HH:mm}}" Width="140"/>
+                                        <DataGridTextColumn Header="Subject ID" Binding="{Binding SubjectId}" Width="120"/>
+                                        <DataGridTextColumn Header="Alcohol Level" Binding="{Binding FormattedAlcoholLevel}" Width="130"/>
+                                        <DataGridTemplateColumn Header="Result" Width="100">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Border CornerRadius="4" Padding="8,4"
+                                                            Background="{Binding ResultStatus, Converter={StaticResource ResultBackgroundConverter}}">
+                                                        <TextBlock Text="{Binding ResultStatus}" FontSize="12" FontWeight="SemiBold"
+                                                                   Foreground="{Binding ResultStatus, Converter={StaticResource ResultForegroundConverter}}"
+                                                                   HorizontalAlignment="Center"/>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="*"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    
+                    <!-- Device View -->
+                    <local:DeviceConnectionView Visibility="{Binding CurrentView, Converter={StaticResource ViewVisibilityConverter}, ConverterParameter=Device}"/>
+                    
+                    <!-- Data View -->
+                    <local:DataView x:Name="DataViewControl" 
+                                    Visibility="{Binding CurrentView, Converter={StaticResource ViewVisibilityConverter}, ConverterParameter=Data}"/>
+                    
+                    <!-- License View -->
+                    <local:LicenseView Visibility="{Binding CurrentView, Converter={StaticResource ViewVisibilityConverter}, ConverterParameter=License}"/>
+                </Grid>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>
